@@ -1,28 +1,27 @@
 #include "Arduino.h"
 #include "C610Bus.h"
 
-
-C610Bus::C610Bus(CAN_DEV_TABLE bus) {
+template <CAN_DEV_TABLE _bus>
+C610Bus<_bus>::C610Bus() {
   for (uint8_t i = 0; i < kSize; i++) {
     controllers_[i] = C610();
   }
-  this.bus = bus
   InitializeCAN();
 }
 
-
-void C610Bus::TorqueToBytes(int16_t torque, uint8_t &upper, uint8_t &lower) {
+template <CAN_DEV_TABLE _bus>
+void C610Bus<_bus>::TorqueToBytes(int16_t torque, uint8_t &upper, uint8_t &lower) {
   upper = (torque >> 8) & 0xFF;
   lower = torque & 0xFF;
 }
 
-
-void C610Bus::PollCAN() {
+template <CAN_DEV_TABLE _bus>
+void C610Bus<_bus>::PollCAN() {
   can_.events();
 }
 
-
-void C610Bus::InitializeCAN() {
+template <CAN_DEV_TABLE _bus>
+void C610Bus<_bus>::InitializeCAN() {
   can_.begin();
   can_.setBaudRate(1000000);
   can_.setMaxMB(16);
@@ -33,8 +32,8 @@ void C610Bus::InitializeCAN() {
   is_initialized_ = true;
 }
 
-
-void C610Bus::Callback(const CAN_message_t &msg) {
+template <CAN_DEV_TABLE _bus>
+void C610Bus<_bus>::Callback(const CAN_message_t &msg) {
   if (msg.id >= kReceiveBaseID + 1 && msg.id <= kReceiveBaseID + kSize) {
     uint8_t esc_index =
         msg.id - kReceiveBaseID - 1;  // ESC 1 corresponds to index 0
@@ -47,8 +46,8 @@ void C610Bus::Callback(const CAN_message_t &msg) {
   }
 }
 
-
-void C610Bus::CommandTorques(const int32_t torque0, const int32_t torque1,
+template <CAN_DEV_TABLE _bus>
+void C610Bus<_bus>::CommandTorques(const int32_t torque0, const int32_t torque1,
                                    const int32_t torque2, const int32_t torque3,
                                    C610Subbus subbus) {
   if (!is_initialized_) {
@@ -79,7 +78,7 @@ void C610Bus::CommandTorques(const int32_t torque0, const int32_t torque1,
   can_.write(msg);
 }
 
-
-C610 &C610Bus::Get(const uint8_t i) {
+template <CAN_DEV_TABLE _bus>
+C610 &C610Bus<_bus>::Get(const uint8_t i) {
   return controllers_[i];
 }
