@@ -3,11 +3,10 @@
 #include <Arduino.h>
 #include <C610.h>
 #include <FlexCAN_T4.h>
-
-enum class C610Subbus { kIDZeroToThree, kIDFourToSeven };
+#include <C610BusBase.h>
 
 template <CAN_DEV_TABLE _bus = CAN1>
-class C610Bus {
+class C610Bus: public C610BusBase{
  public:
   static const uint8_t kSize = 8;
 
